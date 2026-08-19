@@ -6,6 +6,9 @@ import (
 )
 
 func main() {
-	shell := shell.NewShell()
-	shell.Run(context.WithCancel(context.Background()))
+	ctx, cancel := context.WithCancel(context.Background())
+
+	shell := shell.NewShell(ctx, cancel)
+
+	shell.Run()
 }

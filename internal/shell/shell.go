@@ -9,35 +9,43 @@ import (
 )
 
 type Shell struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+
 	pwd    string
 	editor *editor.Editor
 	term   *terminal.Terminal
 }
 
-func NewShell() *Shell {
+func NewShell(ctx context.Context, cancel context.CancelFunc) *Shell {
 	pwd, err := os.Getwd()
 	if err != nil {
 		panic("Error getting the working dir")
 	}
 	term := terminal.NewTerminal()
 	shell := &Shell{
-		pwd:  pwd,
-		term: term,
+		ctx:    ctx,
+		cancel: cancel,
+		pwd:    pwd,
+		term:   term,
 	}
 
-	shell.editor = editor.NewEditor(term.Reader)
+	shell.editor = editor.NewEditor(term.Reader, ctx, cancel)
 
 	return shell
 }
 
 func (s Shell) init() {
 	// The init stuff that has to be run before the shell
-	s.term.EnableRawMode()
 	fmt.Printf("%s >", s.pwd)
 }
 
-func (s *Shell) Run(ctx context.Context, cancel context.CancelFunc) {
+func (s *Shell) Run() {
+	s.term.EnableRawMode()
+
+	defer s.term.DisableRawMode()
+
 	s.init()
 	go s.editor.Listen()
-	<-ctx.Done()
+	<-s.ctx.Done()
 }

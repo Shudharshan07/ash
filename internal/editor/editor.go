@@ -1,16 +1,25 @@
 package editor
 
 import (
+	"ash/internal/parser"
 	"ash/internal/terminal"
+	"context"
+	"fmt"
 )
 
 type Editor struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+
 	line   Line
 	reader terminal.Reader
+	parser parser.Parser
 }
 
-func NewEditor(reader terminal.Reader) *Editor {
+func NewEditor(reader terminal.Reader, ctx context.Context, cancel context.CancelFunc) *Editor {
 	return &Editor{
+		ctx:    ctx,
+		cancel: cancel,
 		reader: reader,
 	}
 }
@@ -21,7 +30,6 @@ func (e *Editor) Listen() error {
 		if err != nil {
 			return err
 		}
-
 		e.handleKey(key)
 	}
 }
@@ -44,5 +52,17 @@ func (e *Editor) handleKey(key terminal.Key) {
 
 	case terminal.KeyDown:
 		e.line.MoveDown()
+	case terminal.KeyEnter:
+		e.ExecuteCommand(e.line.text)
+	}
+}
+
+func (e *Editor) ExecuteCommand(cmd []rune) { // temp input
+	res := e.parser.Parse(cmd)
+
+	fmt.Print(res)
+
+	if res == "exit" {
+		e.cancel()
 	}
 }
