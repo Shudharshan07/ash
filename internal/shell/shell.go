@@ -30,7 +30,7 @@ func NewShell(ctx context.Context, cancel context.CancelFunc) *Shell {
 		term:   term,
 	}
 
-	shell.editor = editor.NewEditor(term.Reader, ctx, cancel)
+	shell.editor = editor.NewEditor(term, ctx, cancel)
 
 	return shell
 }

@@ -8,6 +8,7 @@ import (
 
 type Terminal struct {
 	file   *os.File
+	out    *os.File
 	state  *term.State
 	Reader Reader
 }
@@ -15,6 +16,7 @@ type Terminal struct {
 func NewTerminal() *Terminal {
 	term := &Terminal{
 		file: os.Stdin,
+		out:  os.Stdout,
 	}
 
 	term.Reader.term = term
@@ -45,4 +47,8 @@ func (t *Terminal) ReadByte() (byte, error) {
 	}
 
 	return buf[0], nil
+}
+
+func (t *Terminal) WriteString(s string) (int, error) {
+	return t.out.WriteString(s)
 }
