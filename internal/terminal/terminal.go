@@ -52,3 +52,7 @@ func (t *Terminal) ReadByte() (byte, error) {
 func (t *Terminal) WriteString(s string) (int, error) {
 	return t.out.WriteString(s)
 }
+
+func (t *Terminal) GetSize() (width, height int, err error) {
+	return term.GetSize(int(t.out.Fd()))
+}

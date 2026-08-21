@@ -4,7 +4,6 @@ import (
 	editor "ash/internal/editor"
 	terminal "ash/internal/terminal"
 	"context"
-	"fmt"
 	"os"
 )
 
@@ -35,17 +34,12 @@ func NewShell(ctx context.Context, cancel context.CancelFunc) *Shell {
 	return shell
 }
 
-func (s Shell) init() {
-	// The init stuff that has to be run before the shell
-	fmt.Printf("%s >", s.pwd)
-}
-
 func (s *Shell) Run() {
 	s.term.EnableRawMode()
 
 	defer s.term.DisableRawMode()
 
-	s.init()
+	s.editor.Init()
 	go s.editor.Listen()
 	<-s.ctx.Done()
 }
