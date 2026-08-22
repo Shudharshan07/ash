@@ -7,22 +7,38 @@ type Line struct {
 	cursor int
 }
 
+func NewLine() *Line {
+	return &Line{
+		text:   make([]rune, 0),
+		cursor: 0,
+	}
+}
+
 func (l *Line) CleanLine() {
 	l.text = l.text[:0]
 	l.cursor = 0
 }
 
-func (l *Line) AddCharacter(val rune) {
-	l.text = slices.Insert(l.text, l.cursor, val)
+func (l *Line) Insert(r rune) {
+	l.text = slices.Insert(l.text, l.cursor, r)
 	l.cursor++
 }
 
-func (l *Line) RemoveCharacter() {
+func (l *Line) Backspace() {
 	if l.cursor == 0 {
 		return
 	}
+
 	l.text = slices.Delete(l.text, l.cursor-1, l.cursor)
 	l.cursor--
+}
+
+func (l *Line) Delete() {
+	if l.cursor >= len(l.text) {
+		return
+	}
+
+	l.text = slices.Delete(l.text, l.cursor, l.cursor+1)
 }
 
 func (l *Line) MoveLeft() {
@@ -35,6 +51,14 @@ func (l *Line) MoveRight() {
 	if l.cursor < len(l.text) {
 		l.cursor++
 	}
+}
+
+func (l *Line) Start() {
+	l.cursor = 0
+}
+
+func (l *Line) End() {
+	l.cursor = len(l.text)
 }
 
 func (l *Line) MoveUp() {

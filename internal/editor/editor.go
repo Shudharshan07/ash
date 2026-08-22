@@ -10,8 +10,7 @@ type Editor struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	prompt string // Will be replased
-	line   Line
+	line   *Line
 	reader terminal.Reader
 	parser parser.Parser
 
@@ -22,10 +21,15 @@ func NewEditor(term *terminal.Terminal, ctx context.Context, cancel context.Canc
 	return &Editor{
 		ctx:      ctx,
 		cancel:   cancel,
-		prompt:   "$",
 		reader:   term.Reader,
+		line:     NewLine(),
 		renderer: NewRenderer(term),
 	}
+}
+
+func (e *Editor) Init() {
+	// Add some cool stuff
+	e.renderer.RenderPrompt()
 }
 
 func (e *Editor) Listen() error {
@@ -43,6 +47,9 @@ func (e *Editor) handleKey(key terminal.Key) {
 	case terminal.KeyCharacter:
 		e.Insert(key.Rune)
 	case terminal.KeyBackspace:
+		e.Backspace()
+
+	case terminal.KeyDelete:
 		e.Delete()
 
 	case terminal.KeyLeft:
@@ -50,6 +57,12 @@ func (e *Editor) handleKey(key terminal.Key) {
 
 	case terminal.KeyRight:
 		e.Right()
+
+	case terminal.KeyHome:
+		e.Start()
+
+	case terminal.KeyEnd:
+		e.End()
 
 	case terminal.KeyUp:
 		e.line.MoveUp()
@@ -62,37 +75,58 @@ func (e *Editor) handleKey(key terminal.Key) {
 }
 
 func (e *Editor) ExecuteCommand(cmd []rune) { // temp input
+	// e.End()
 	res := e.parser.Parse(cmd)
 
 	if res == "exit" {
 		e.cancel()
 	}
 	e.line.CleanLine()
-	e.renderer.RenderPrompt(e.prompt)
+	e.renderer.RenderPrompt()
 }
 
+// editor.go (relevant methods)
 func (e *Editor) Insert(r rune) {
-	e.line.AddCharacter(r)
-	e.renderer.RenderInsert(&e.line)
+	e.line.Insert(r)
+	e.renderer.RenderInsert(e.line)
+}
+
+func (e *Editor) Backspace() {
+	e.line.Backspace()
+	e.renderer.RenderBackspace(e.line)
 }
 
 func (e *Editor) Delete() {
-	if e.line.cursor > 0 {
-		e.line.RemoveCharacter()
-		e.renderer.RenderDelete(&e.line)
-	}
+	e.line.Delete()
+	e.renderer.RenderDelete(e.line)
 }
 
 func (e *Editor) Left() {
-	if e.line.cursor > 0 {
-		e.line.MoveLeft()
-		e.renderer.RenderLeft()
+	if e.line.cursor == 0 {
+		return
 	}
+	prev := *e.line
+	e.line.MoveLeft()
+	e.renderer.RenderCursor(e.line, &prev)
 }
 
 func (e *Editor) Right() {
-	if e.line.cursor < len(e.line.text) {
-		e.line.MoveRight()
-		e.renderer.RenderRight()
+	if e.line.cursor == len(e.line.text) {
+		return
 	}
+	prev := *e.line
+	e.line.MoveRight()
+	e.renderer.RenderCursor(e.line, &prev)
+}
+
+func (e *Editor) Start() {
+	prev := *e.line
+	e.line.Start()
+	e.renderer.RenderCursor(e.line, &prev)
+}
+
+func (e *Editor) End() {
+	prev := *e.line
+	e.line.End()
+	e.renderer.RenderCursor(e.line, &prev)
 }
