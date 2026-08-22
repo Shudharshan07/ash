@@ -68,6 +68,9 @@ func (r *Reader) readEscapeSequence() (Key, error) {
 	case 'F':
 		return Key{Type: KeyEnd}, nil
 
+	case '1', '2', '3', '4', '5', '6', '7', '8', '9':
+		return r.readTildeSequence(b)
+
 	default:
 		return Key{Type: KeyUnknown}, nil
 	}
@@ -78,4 +81,33 @@ func (r *Reader) readCharacter(first byte) (Key, error) {
 		Type: KeyCharacter,
 		Rune: rune(first),
 	}, nil
+}
+
+func (r *Reader) readTildeSequence(first byte) (Key, error) {
+	digits := []byte{first}
+
+	for {
+		b, err := r.term.ReadByte()
+		if err != nil {
+			return Key{}, err
+		}
+
+		if b == '~' {
+			break
+		}
+		// Some terminals send multi-digit codes (e.g. modifiers like "3;5~").
+		// Keep consuming until the terminating '~' either way.
+		digits = append(digits, b)
+	}
+
+	switch digits[0] {
+	case '3':
+		return Key{Type: KeyDelete}, nil
+	case '1', '7':
+		return Key{Type: KeyHome}, nil
+	case '4', '8':
+		return Key{Type: KeyEnd}, nil
+	default:
+		return Key{Type: KeyUnknown}, nil
+	}
 }

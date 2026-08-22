@@ -92,13 +92,15 @@ func (e *Editor) Insert(r rune) {
 }
 
 func (e *Editor) Backspace() {
-	e.line.Backspace()
-	e.renderer.RenderBackspace(e.line)
+	if e.line.Backspace() {
+		e.renderer.RenderBackspace(e.line)
+	}
 }
 
 func (e *Editor) Delete() {
-	e.line.Delete()
-	e.renderer.RenderDelete(e.line)
+	if e.line.Delete() {
+		e.renderer.RenderDelete(e.line)
+	}
 }
 
 func (e *Editor) Left() {

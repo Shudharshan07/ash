@@ -24,21 +24,23 @@ func (l *Line) Insert(r rune) {
 	l.cursor++
 }
 
-func (l *Line) Backspace() {
+func (l *Line) Backspace() bool {
 	if l.cursor == 0 {
-		return
+		return false
 	}
 
 	l.text = slices.Delete(l.text, l.cursor-1, l.cursor)
 	l.cursor--
+	return true
 }
 
-func (l *Line) Delete() {
+func (l *Line) Delete() bool {
 	if l.cursor >= len(l.text) {
-		return
+		return false
 	}
 
 	l.text = slices.Delete(l.text, l.cursor, l.cursor+1)
+	return true
 }
 
 func (l *Line) MoveLeft() {

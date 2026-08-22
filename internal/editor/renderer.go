@@ -79,7 +79,7 @@ func (r *Renderer) RenderInsert(l *Line) {
 }
 
 func (r *Renderer) RenderBackspace(l *Line) {
-	r.term.WriteString("\x1b[D")
+	r.moveCursorFromTo(l.cursor+1, l.cursor)
 	r.term.WriteString("\x1b7")
 
 	tail := string(l.text[l.cursor:])
