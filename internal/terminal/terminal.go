@@ -56,3 +56,12 @@ func (t *Terminal) WriteString(s string) (int, error) {
 func (t *Terminal) GetSize() (width, height int, err error) {
 	return term.GetSize(int(t.out.Fd()))
 }
+
+func (t *Terminal) GetWidth() (width int) {
+	w, _, _ := term.GetSize(int(t.out.Fd()))
+	return w
+}
+
+func (t *Terminal) Write(p []byte) (int, error) {
+	return t.out.Write(p)
+}

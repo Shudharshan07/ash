@@ -43,16 +43,20 @@ func (l *Line) Delete() bool {
 	return true
 }
 
-func (l *Line) MoveLeft() {
-	if l.cursor > 0 {
-		l.cursor--
+func (l *Line) MoveLeft() bool {
+	if l.cursor <= 0 {
+		return false
 	}
+	l.cursor--
+	return true
 }
 
-func (l *Line) MoveRight() {
-	if l.cursor < len(l.text) {
-		l.cursor++
+func (l *Line) MoveRight() bool {
+	if l.cursor >= len(l.text) {
+		return false
 	}
+	l.cursor++
+	return true
 }
 
 func (l *Line) Start() {

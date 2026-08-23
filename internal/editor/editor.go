@@ -88,47 +88,39 @@ func (e *Editor) ExecuteCommand(cmd []rune) { // temp input
 // editor.go (relevant methods)
 func (e *Editor) Insert(r rune) {
 	e.line.Insert(r)
-	e.renderer.RenderInsert(e.line)
+	e.renderer.Draw(e.line)
 }
 
 func (e *Editor) Backspace() {
 	if e.line.Backspace() {
-		e.renderer.RenderBackspace(e.line)
+		e.renderer.Draw(e.line)
 	}
 }
 
 func (e *Editor) Delete() {
 	if e.line.Delete() {
-		e.renderer.RenderDelete(e.line)
+		e.renderer.Draw(e.line)
 	}
 }
 
 func (e *Editor) Left() {
-	if e.line.cursor == 0 {
-		return
+	if e.line.MoveLeft() {
+		e.renderer.Draw(e.line)
 	}
-	prev := *e.line
-	e.line.MoveLeft()
-	e.renderer.RenderCursor(e.line, &prev)
 }
 
 func (e *Editor) Right() {
-	if e.line.cursor == len(e.line.text) {
-		return
+	if e.line.MoveRight() {
+		e.renderer.Draw(e.line)
 	}
-	prev := *e.line
-	e.line.MoveRight()
-	e.renderer.RenderCursor(e.line, &prev)
 }
 
 func (e *Editor) Start() {
-	prev := *e.line
 	e.line.Start()
-	e.renderer.RenderCursor(e.line, &prev)
+	e.renderer.Draw(e.line)
 }
 
 func (e *Editor) End() {
-	prev := *e.line
 	e.line.End()
-	e.renderer.RenderCursor(e.line, &prev)
+	e.renderer.Draw(e.line)
 }
