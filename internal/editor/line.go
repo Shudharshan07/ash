@@ -66,11 +66,3 @@ func (l *Line) Start() {
 func (l *Line) End() {
 	l.cursor = len(l.text)
 }
-
-func (l *Line) MoveUp() {
-
-}
-
-func (l *Line) MoveDown() {
-
-}

@@ -15,6 +15,8 @@ type Editor struct {
 	parser parser.Parser
 
 	renderer *Renderer
+
+	history *History
 }
 
 func NewEditor(term *terminal.Terminal, ctx context.Context, cancel context.CancelFunc) *Editor {
@@ -24,6 +26,7 @@ func NewEditor(term *terminal.Terminal, ctx context.Context, cancel context.Canc
 		reader:   term.Reader,
 		line:     NewLine(),
 		renderer: NewRenderer(term),
+		history:  NewHistory(),
 	}
 }
 
@@ -65,17 +68,22 @@ func (e *Editor) handleKey(key terminal.Key) {
 		e.End()
 
 	case terminal.KeyUp:
-		e.line.MoveUp()
+		e.Up()
 
 	case terminal.KeyDown:
-		e.line.MoveDown()
+		e.Down()
+
 	case terminal.KeyEnter:
-		e.ExecuteCommand(e.line.text)
+		e.ExecuteCommand()
 	}
 }
 
-func (e *Editor) ExecuteCommand(cmd []rune) { // temp input
+func (e *Editor) ExecuteCommand() { // temp input
+	// if no text no need to save to history
+	cmd := e.line.text
 	e.End()
+	e.history.SaveHistory(cmd)
+
 	res := e.parser.Parse(cmd)
 
 	if res == "exit" {
@@ -122,5 +130,25 @@ func (e *Editor) Start() {
 
 func (e *Editor) End() {
 	e.line.End()
+	e.renderer.Draw(e.line)
+}
+
+func (e *Editor) Up() {
+	line := e.history.MoveUp()
+	if line == nil {
+		return
+	}
+	e.line.text = line
+	e.End()
+	e.renderer.Draw(e.line)
+}
+
+func (e *Editor) Down() {
+	line := e.history.MoveDown()
+	if line == nil {
+		return
+	}
+	e.line.text = line
+	e.End()
 	e.renderer.Draw(e.line)
 }
