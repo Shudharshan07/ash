@@ -4,28 +4,21 @@ import (
 	editor "ash/internal/editor"
 	terminal "ash/internal/terminal"
 	"context"
-	"os"
 )
 
 type Shell struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	pwd    string
 	editor *editor.Editor
 	term   *terminal.Terminal
 }
 
 func NewShell(ctx context.Context, cancel context.CancelFunc) *Shell {
-	pwd, err := os.Getwd()
-	if err != nil {
-		panic("Error getting the working dir")
-	}
 	term := terminal.NewTerminal()
 	shell := &Shell{
 		ctx:    ctx,
 		cancel: cancel,
-		pwd:    pwd,
 		term:   term,
 	}
 

@@ -75,7 +75,7 @@ func (e *Editor) handleKey(key terminal.Key) {
 }
 
 func (e *Editor) ExecuteCommand(cmd []rune) { // temp input
-	// e.End()
+	e.End()
 	res := e.parser.Parse(cmd)
 
 	if res == "exit" {
