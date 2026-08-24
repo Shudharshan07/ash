@@ -1,8 +1,10 @@
 Now the terminal can read the byes , handle ansi chars too
 
 # Next Step:
-1. The Editor need a refactoring , all the functions can be removed and it can be set it HandleKey function itself
-2. Next step move to the prompt 
+1. Next step move to the prompt 
+2. The Tab completion step will need us to make some big chnages in the editor i guess. 
+but do it after the completion of the parser , execution, so we can optimise it based on the commands and execution
+3. Optimise the writes in the editor
 
 # Additional:
 1. in editor we do a lot of writes, we need to optimise that 

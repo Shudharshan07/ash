@@ -46,26 +46,28 @@ func (e *Editor) Listen() error {
 }
 
 func (e *Editor) handleKey(key terminal.Key) {
+	isRun := true
+
 	switch key.Type {
 	case terminal.KeyCharacter:
-		e.Insert(key.Rune)
+		e.line.Insert(key.Rune)
 	case terminal.KeyBackspace:
-		e.Backspace()
+		isRun = e.line.Backspace()
 
 	case terminal.KeyDelete:
-		e.Delete()
+		isRun = e.line.Delete()
 
 	case terminal.KeyLeft:
-		e.Left()
+		isRun = e.line.MoveLeft()
 
 	case terminal.KeyRight:
-		e.Right()
+		isRun = e.line.MoveRight()
 
 	case terminal.KeyHome:
-		e.Start()
+		isRun = e.line.Start()
 
 	case terminal.KeyEnd:
-		e.End()
+		isRun = e.line.End()
 
 	case terminal.KeyUp:
 		e.Up()
@@ -76,13 +78,17 @@ func (e *Editor) handleKey(key terminal.Key) {
 	case terminal.KeyEnter:
 		e.ExecuteCommand()
 	}
+
+	if isRun {
+		e.renderer.Draw(e.line)
+	}
 }
 
 func (e *Editor) ExecuteCommand() { // temp input
 	// if no text no need to save to history
 	cmd := e.line.text
 	e.End()
-	e.history.SaveHistory(cmd)
+	e.history.SaveHistory(e.line)
 
 	res := e.parser.Parse(cmd)
 
@@ -91,46 +97,6 @@ func (e *Editor) ExecuteCommand() { // temp input
 	}
 	e.line.CleanLine()
 	e.renderer.RenderPrompt()
-}
-
-// editor.go (relevant methods)
-func (e *Editor) Insert(r rune) {
-	e.line.Insert(r)
-	e.renderer.Draw(e.line)
-}
-
-func (e *Editor) Backspace() {
-	if e.line.Backspace() {
-		e.renderer.Draw(e.line)
-	}
-}
-
-func (e *Editor) Delete() {
-	if e.line.Delete() {
-		e.renderer.Draw(e.line)
-	}
-}
-
-func (e *Editor) Left() {
-	if e.line.MoveLeft() {
-		e.renderer.Draw(e.line)
-	}
-}
-
-func (e *Editor) Right() {
-	if e.line.MoveRight() {
-		e.renderer.Draw(e.line)
-	}
-}
-
-func (e *Editor) Start() {
-	e.line.Start()
-	e.renderer.Draw(e.line)
-}
-
-func (e *Editor) End() {
-	e.line.End()
-	e.renderer.Draw(e.line)
 }
 
 func (e *Editor) Up() {
@@ -150,5 +116,10 @@ func (e *Editor) Down() {
 	}
 	e.line.text = line
 	e.End()
+	e.renderer.Draw(e.line)
+}
+
+func (e *Editor) End() {
+	e.line.End()
 	e.renderer.Draw(e.line)
 }

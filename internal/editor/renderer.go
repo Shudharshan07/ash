@@ -70,7 +70,7 @@ func (r *Renderer) Draw(l *Line) {
 	}
 
 	cp := promptWidth + prefix
-	wroteAny := prefix < len(l.text)
+	wroteAny := prefix < l.Len()
 
 	b := appendMove(r.buf[:0], cursorAbs, cp, width)
 	b = append(b, "\x1b[0J"...)
@@ -79,7 +79,7 @@ func (r *Renderer) Draw(l *Line) {
 		b = utf8.AppendRune(b, ch)
 	}
 
-	lineEnd := promptWidth + len(l.text)
+	lineEnd := promptWidth + l.Len()
 
 	if wroteAny && lineEnd > 0 && lineEnd%width == 0 {
 		lineEnd--

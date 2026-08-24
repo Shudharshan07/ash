@@ -35,7 +35,7 @@ func (l *Line) Backspace() bool {
 }
 
 func (l *Line) Delete() bool {
-	if l.cursor >= len(l.text) {
+	if l.cursor >= l.Len() {
 		return false
 	}
 
@@ -52,17 +52,35 @@ func (l *Line) MoveLeft() bool {
 }
 
 func (l *Line) MoveRight() bool {
-	if l.cursor >= len(l.text) {
+	if l.cursor >= l.Len() {
 		return false
 	}
 	l.cursor++
 	return true
 }
 
-func (l *Line) Start() {
+func (l *Line) Start() bool {
+	if l.cursor == 0 {
+		return false
+	}
+
 	l.cursor = 0
+	return true
 }
 
-func (l *Line) End() {
-	l.cursor = len(l.text)
+func (l *Line) End() bool {
+	if l.cursor == l.Len() {
+		return false
+	}
+
+	l.cursor = l.Len()
+	return true
+}
+
+func (l *Line) Len() int {
+	return len(l.text)
+}
+
+func (l *Line) IsEmpty() bool {
+	return len(l.text) == 0
 }

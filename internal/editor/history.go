@@ -1,33 +1,46 @@
 package editor
 
-import "slices"
+import (
+	"slices"
+)
+
+type HistoryEntry []rune
+
+func NewEntry(l *Line) HistoryEntry {
+	return slices.Clone(l.text)
+}
+
+func (h HistoryEntry) equal(l *Line) bool {
+	return slices.Equal(l.text, h)
+}
 
 type History struct {
-	commands [][]rune
+	commands []HistoryEntry
 	index    int
 }
 
 func NewHistory() *History {
 	return &History{
-		commands: make([][]rune, 0, 10),
+		commands: make([]HistoryEntry, 0, 10),
 		index:    0,
 	}
 }
 
-func (h *History) SaveHistory(l []rune) {
-	if len(l) == 0 {
-		return
-	}
-	if !h.isEmpty() && slices.Equal(h.commands[len(h.commands)-1], l) {
+func (h *History) SaveHistory(l *Line) {
+	if l.IsEmpty() {
 		return
 	}
 
-	h.commands = append(h.commands, slices.Clone(l))
-	h.index = len(h.commands)
+	if !h.IsEmpty() && h.commands[h.Len()-1].equal(l) {
+		return
+	}
+
+	h.commands = append(h.commands, NewEntry(l))
+	h.index = h.Len()
 }
 
 func (h *History) MoveUp() []rune {
-	if h.isEmpty() {
+	if h.IsEmpty() {
 		return nil
 	}
 	if h.index > 0 {
@@ -37,25 +50,25 @@ func (h *History) MoveUp() []rune {
 }
 
 func (h *History) MoveDown() []rune {
-	if h.isEmpty() {
+	if h.IsEmpty() {
 		return nil
 	}
 	h.index++
-	if h.index >= len(h.commands) {
-		h.index = len(h.commands)
+	if h.index >= h.Len() {
+		h.index = h.Len()
 		return nil
 	}
 	return slices.Clone(h.commands[h.index])
 }
 
 func (h *History) GetHistory() []rune {
-	if h.isEmpty() || h.index < 0 || h.index >= len(h.commands) {
+	if h.IsEmpty() || h.index < 0 || h.index >= h.Len() {
 		return nil
 	}
 	return slices.Clone(h.commands[h.index])
 }
 
-func (h *History) isEmpty() bool {
+func (h *History) IsEmpty() bool {
 	return len(h.commands) == 0
 }
 
