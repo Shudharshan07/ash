@@ -9,7 +9,6 @@ import (
 
 type termWriter interface {
 	Write(p []byte) (int, error)
-	GetSize() (width, height int, err error)
 	GetWidth() (width int)
 }
 

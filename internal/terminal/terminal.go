@@ -65,3 +65,15 @@ func (t *Terminal) GetWidth() (width int) {
 func (t *Terminal) Write(p []byte) (int, error) {
 	return t.out.Write(p)
 }
+
+func (t *Terminal) Stdin() *os.File {
+	return t.file
+}
+
+func (t *Terminal) Stdout() *os.File {
+	return t.out
+}
+
+func (t *Terminal) Stderr() *os.File {
+	return t.out
+}

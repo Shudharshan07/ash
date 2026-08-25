@@ -4,24 +4,22 @@ import (
 	"slices"
 )
 
-type HistoryEntry []rune
-
-func NewEntry(l *Line) HistoryEntry {
+func NewEntry(l *Line) Command {
 	return slices.Clone(l.text)
 }
 
-func (h HistoryEntry) equal(l *Line) bool {
+func (h Command) equal(l *Line) bool {
 	return slices.Equal(l.text, h)
 }
 
 type History struct {
-	commands []HistoryEntry
+	commands []Command
 	index    int
 }
 
 func NewHistory() *History {
 	return &History{
-		commands: make([]HistoryEntry, 0, 10),
+		commands: make([]Command, 0, 10),
 		index:    0,
 	}
 }

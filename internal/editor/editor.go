@@ -1,7 +1,7 @@
 package editor
 
 import (
-	"ash/internal/parser"
+	"ash/internal/executor"
 	"ash/internal/terminal"
 	"context"
 )
@@ -10,9 +10,9 @@ type Editor struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	line   *Line
-	reader terminal.Reader
-	parser parser.Parser
+	line     *Line
+	reader   terminal.Reader
+	executor *executor.Executor
 
 	renderer *Renderer
 
@@ -25,6 +25,7 @@ func NewEditor(term *terminal.Terminal, ctx context.Context, cancel context.Canc
 		cancel:   cancel,
 		reader:   term.Reader,
 		line:     NewLine(),
+		executor: executor.NewExecutor(),
 		renderer: NewRenderer(term),
 		history:  NewHistory(),
 	}
@@ -84,19 +85,23 @@ func (e *Editor) handleKey(key terminal.Key) {
 	}
 }
 
-func (e *Editor) ExecuteCommand() { // temp input
-	// if no text no need to save to history
-	cmd := e.line.text
-	e.End()
+func (e *Editor) ExecuteCommand() error {
+	e.End() // will render the cursor to the end of line
+
 	e.history.SaveHistory(e.line)
 
-	res := e.parser.Parse(cmd)
-
-	if res == "exit" {
+	cmd := e.line.text
+	if string(cmd) == "exit" {
 		e.cancel()
 	}
+
+	e.executor.Run(cmd)
+	// show the output using some write, we need to manage the context so we can kiil this sheel (we need to implement the inbuilts)
+
 	e.line.CleanLine()
 	e.renderer.RenderPrompt()
+
+	return nil
 }
 
 func (e *Editor) Up() {

@@ -2,14 +2,16 @@ package editor
 
 import "slices"
 
+type Command []rune
+
 type Line struct {
-	text   []rune
+	text   Command
 	cursor int
 }
 
 func NewLine() *Line {
 	return &Line{
-		text:   make([]rune, 0),
+		text:   make(Command, 0),
 		cursor: 0,
 	}
 }
