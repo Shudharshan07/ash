@@ -25,7 +25,7 @@ func NewEditor(term *terminal.Terminal, ctx context.Context, cancel context.Canc
 		cancel:   cancel,
 		reader:   term.Reader,
 		line:     NewLine(),
-		executor: executor.NewExecutor(),
+		executor: executor.NewExecutor(term),
 		renderer: NewRenderer(term),
 		history:  NewHistory(),
 	}

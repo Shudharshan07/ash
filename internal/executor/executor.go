@@ -12,10 +12,10 @@ type Executor struct {
 	term   *terminal.Terminal
 }
 
-func NewExecutor() *Executor {
+func NewExecutor(term *terminal.Terminal) *Executor {
 	return &Executor{
 		parser: parser.NewParser(),
-		term:   terminal.NewTerminal(),
+		term:   term,
 	}
 }
 
@@ -39,12 +39,15 @@ func (e *Executor) Run(command []rune) {
 	exe.Stdout = e.term.Stdout()
 	exe.Stderr = e.term.Stderr()
 
+	// the error and the output should be handled properly
+	e.term.DisableRawMode()
 	err = exe.Run()
+	e.term.EnableRawMode()
 	if err != nil {
 		e.HandleError(err)
 	}
 }
 
 func (e *Executor) HandleError(err error) {
-	fmt.Print(err.Error())
+	fmt.Print("\n" + err.Error())
 }

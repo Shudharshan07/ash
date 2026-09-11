@@ -26,12 +26,9 @@ func NewTerminal() *Terminal {
 
 func (t *Terminal) EnableRawMode() error {
 	state, err := term.MakeRaw(int(t.file.Fd()))
-	if err != nil {
-		return err
-	}
-
 	t.state = state
-	return nil
+
+	return err
 }
 
 func (t *Terminal) DisableRawMode() error {

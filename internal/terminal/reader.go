@@ -11,7 +11,7 @@ func (r *Reader) ReadKey() (Key, error) {
 	}
 
 	switch b {
-	case 13:
+	case 13, 10:
 		return Key{Type: KeyEnter}, nil
 
 	case 127:
