@@ -4,6 +4,7 @@ import (
 	"ash/internal/executor"
 	"ash/internal/terminal"
 	"context"
+	"os"
 )
 
 type Editor struct {
@@ -25,7 +26,7 @@ func NewEditor(term *terminal.Terminal, ctx context.Context, cancel context.Canc
 		cancel:   cancel,
 		reader:   term.Reader,
 		line:     NewLine(),
-		executor: executor.NewExecutor(term),
+		executor: executor.NewExecutor(term, ctx, cancel),
 		renderer: NewRenderer(term),
 		history:  NewHistory(),
 	}
@@ -78,6 +79,9 @@ func (e *Editor) handleKey(key terminal.Key) {
 
 	case terminal.KeyEnter:
 		e.ExecuteCommand()
+
+	case terminal.KeyTab:
+		e.Tab()
 	}
 
 	if isRun {
@@ -87,16 +91,18 @@ func (e *Editor) handleKey(key terminal.Key) {
 
 func (e *Editor) ExecuteCommand() error {
 	e.End() // will render the cursor to the end of line
+	e.NewLine()
 
 	e.history.SaveHistory(e.line)
 
 	cmd := e.line.text
-	if string(cmd) == "exit" {
-		e.cancel()
-	}
 
 	e.executor.Run(cmd)
 	// show the output using some write, we need to manage the context so we can kiil this sheel (we need to implement the inbuilts)
+
+	if err := e.ctx.Err(); err != nil {
+		return err
+	}
 
 	e.line.CleanLine()
 	e.renderer.RenderPrompt()
@@ -110,7 +116,7 @@ func (e *Editor) Up() {
 		return
 	}
 	e.line.text = line
-	e.End()
+	e.line.End()
 	e.renderer.Draw(e.line)
 }
 
@@ -120,11 +126,20 @@ func (e *Editor) Down() {
 		return
 	}
 	e.line.text = line
-	e.End()
+	e.line.End()
 	e.renderer.Draw(e.line)
 }
 
 func (e *Editor) End() {
-	e.line.End()
-	e.renderer.Draw(e.line)
+	if e.line.End() {
+		e.renderer.Draw(e.line)
+	}
+}
+
+func (e *Editor) NewLine() {
+	e.renderer.NewLine()
+}
+
+func (e *Editor) Tab() {
+	os.Getwd()
 }

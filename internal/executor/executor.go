@@ -1,35 +1,46 @@
 package executor
 
 import (
+	"ash/internal/builtins"
 	"ash/internal/parser"
 	"ash/internal/terminal"
+	"context"
 	"fmt"
 	"os/exec"
 )
 
 type Executor struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+
 	parser *parser.Parser
 	term   *terminal.Terminal
+
+	registry *builtins.Registry
 }
 
-func NewExecutor(term *terminal.Terminal) *Executor {
+func NewExecutor(term *terminal.Terminal, ctx context.Context, cancel context.CancelFunc) *Executor {
 	return &Executor{
-		parser: parser.NewParser(),
-		term:   term,
+		parser:   parser.NewParser(),
+		term:     term,
+		registry: builtins.NewRegistry(term, ctx, cancel),
 	}
 }
 
 func (e *Executor) Run(command []rune) {
 	cmd, err := e.parser.Parse(command)
 
-	fmt.Println(cmd)
 	if err != nil {
 		e.HandleError(err)
 		return
 	}
 
 	if len(cmd) == 0 {
-		// send some error
+		return
+	}
+
+	if e.registry.Exists(cmd[0]) {
+		e.registry.Run(cmd[0], cmd[1:])
 		return
 	}
 
@@ -39,15 +50,16 @@ func (e *Executor) Run(command []rune) {
 	exe.Stdout = e.term.Stdout()
 	exe.Stderr = e.term.Stderr()
 
-	// the error and the output should be handled properly
 	e.term.DisableRawMode()
 	err = exe.Run()
 	e.term.EnableRawMode()
+
+	// the error and the output should be handled properly
 	if err != nil {
 		e.HandleError(err)
 	}
 }
 
 func (e *Executor) HandleError(err error) {
-	fmt.Print("\n" + err.Error())
+	fmt.Println(err.Error())
 }

@@ -53,7 +53,7 @@ func (h *History) MoveDown() []rune {
 	}
 	h.index++
 	if h.index >= h.Len() {
-		h.index = h.Len()
+		h.index = h.Len() - 1
 		return nil
 	}
 	return slices.Clone(h.commands[h.index])

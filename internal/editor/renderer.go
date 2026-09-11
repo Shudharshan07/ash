@@ -90,3 +90,7 @@ func (r *Renderer) Draw(l *Line) {
 
 	r.state.commit(l.text, l.cursor, width)
 }
+
+func (r *Renderer) NewLine() {
+	r.term.Write([]byte("\r\n"))
+}
