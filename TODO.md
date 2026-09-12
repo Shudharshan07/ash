@@ -14,3 +14,7 @@ but do it after the completion of the parser , execution, so we can optimise it 
 
 - Mare sure pipe and & , and >> , > kinda stuff works before AST and parsing
 
+
+check whats wrong with the ctrl + C
+
+read rune in terminal

@@ -10,8 +10,8 @@ import (
 )
 
 type Executor struct {
-	ctx    context.Context
-	cancel context.CancelFunc
+	// ctx    context.Context
+	// cancel context.CancelFunc
 
 	parser *parser.Parser
 	term   *terminal.Terminal
@@ -55,9 +55,6 @@ func (e *Executor) Run(command []rune) {
 	e.term.EnableRawMode()
 
 	// the error and the output should be handled properly
-	if err != nil {
-		e.HandleError(err)
-	}
 }
 
 func (e *Executor) HandleError(err error) {

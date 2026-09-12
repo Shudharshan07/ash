@@ -40,10 +40,9 @@ func (e *Editor) Init() {
 func (e *Editor) Listen() error {
 	for {
 		key, err := e.reader.ReadKey()
-		if err != nil {
-			return err
+		if err == nil {
+			e.handleKey(key)
 		}
-		e.handleKey(key)
 	}
 }
 
@@ -82,6 +81,16 @@ func (e *Editor) handleKey(key terminal.Key) {
 
 	case terminal.KeyTab:
 		e.Tab()
+
+	case terminal.KeyCtrlC:
+		e.CtrlC()
+
+	case terminal.KeyUnknown:
+		isRun = false
+		return
+
+	default:
+		e.line.Insert(key.Rune)
 	}
 
 	if isRun {
@@ -142,4 +151,12 @@ func (e *Editor) NewLine() {
 
 func (e *Editor) Tab() {
 	os.Getwd()
+}
+
+func (e *Editor) CtrlC() {
+	e.End()
+	e.NewLine()
+
+	e.line.CleanLine()
+	e.renderer.RenderPrompt()
 }

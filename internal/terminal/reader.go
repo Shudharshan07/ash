@@ -30,6 +30,10 @@ func (r *Reader) ReadKey() (Key, error) {
 		return r.readEscapeSequence()
 
 	default:
+		if b < 32 {
+			return Key{Type: KeyUnknown}, nil
+		}
+
 		return r.readCharacter(b)
 	}
 }

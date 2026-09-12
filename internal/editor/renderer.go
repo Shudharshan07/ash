@@ -32,7 +32,7 @@ func NewRenderer(term termWriter) *Renderer {
 func (r *Renderer) RenderPrompt() {
 	b := r.buf[:0]
 	b = append(b, '\n')
-	b = append(b, r.prompt.Text...)
+	b = append(b, r.prompt.Text()...)
 	r.term.Write(b)
 	r.buf = b
 	r.state.invalidate()

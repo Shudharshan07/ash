@@ -34,4 +34,5 @@ func (r *Registry) builtinExit(args []string) error {
 	return nil
 }
 
+// ll, ls, dir, cat | type, where, touch, export, unset , echo
 // pause
