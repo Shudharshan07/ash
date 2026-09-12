@@ -5,12 +5,12 @@ type Reader struct {
 }
 
 func (r *Reader) ReadKey() (Key, error) {
-	b, err := r.term.ReadByte()
+	rn, _, err := r.term.ReadRune()
 	if err != nil {
 		return Key{}, err
 	}
 
-	switch b {
+	switch rn {
 	case 13, 10:
 		return Key{Type: KeyEnter}, nil
 
@@ -30,11 +30,11 @@ func (r *Reader) ReadKey() (Key, error) {
 		return r.readEscapeSequence()
 
 	default:
-		if b < 32 {
+		if rn < 32 {
 			return Key{Type: KeyUnknown}, nil
 		}
 
-		return r.readCharacter(b)
+		return r.readCharacter(rn)
 	}
 }
 
@@ -80,7 +80,7 @@ func (r *Reader) readEscapeSequence() (Key, error) {
 	}
 }
 
-func (r *Reader) readCharacter(first byte) (Key, error) {
+func (r *Reader) readCharacter(first rune) (Key, error) {
 	return Key{
 		Type: KeyCharacter,
 		Rune: rune(first),

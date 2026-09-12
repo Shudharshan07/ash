@@ -2,6 +2,7 @@ package terminal
 
 import (
 	"os"
+	"unicode/utf8"
 
 	"golang.org/x/term"
 )
@@ -44,6 +45,48 @@ func (t *Terminal) ReadByte() (byte, error) {
 	}
 
 	return buf[0], nil
+}
+
+func (t *Terminal) ReadRune() (rune, int, error) {
+	var buf [4]byte
+
+	// Read the first byte
+	_, err := t.file.Read(buf[:1])
+	if err != nil {
+		return 0, 0, err
+	}
+
+	first := buf[0]
+
+	// If it's standard ASCII (0-127), it's only 1 byte long.
+	if first < utf8.RuneSelf {
+		return rune(first), 1, nil
+	}
+
+	// Otherwise, determine how many bytes this character uses
+	var size int
+	if first >= 0xC0 && first <= 0xDF {
+		size = 2
+	} else if first >= 0xE0 && first <= 0xEF {
+		size = 3
+	} else if first >= 0xF0 && first <= 0xF7 {
+		size = 4
+	} else {
+		// Invalid UTF-8 start byte
+		return utf8.RuneError, 1, nil
+	}
+
+	// Read the remaining bytes for this specific character
+	for i := 1; i < size; i++ {
+		_, err := t.file.Read(buf[i : i+1])
+		if err != nil {
+			return 0, i, err
+		}
+	}
+
+	// Decode the full byte slice into a single rune
+	r, _ := utf8.DecodeRune(buf[:size])
+	return r, size, nil
 }
 
 func (t *Terminal) WriteString(s string) (int, error) {
